@@ -9,7 +9,7 @@ This document covers the setup of an Ubuntu cloud instance deployed from AWS EC2
 - OS: Ubuntu Resolute 26.04
 
 
-## Connect to the Server
+## Step 1: Connect to the Server
 Connect to your instance using the provided `.pem` key:
 
 ```bash
