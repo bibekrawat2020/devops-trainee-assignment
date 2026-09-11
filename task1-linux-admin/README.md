@@ -52,9 +52,10 @@ sudo chmod 600 /home/trainee/.ssh/authorized_keys
 sudo chown -R trainee:trainee /home/trainee/.ssh
 ```
 ### 3b. Change SSH port to 2222 and Disable root login
-We eidt the SSh daemon configuration:
+We edit the ssh daemon configuration:
 ```bash
 sudo nano /etc/ssh/sshd_config
+sudo sshd -t
 ```
 We locate and update the following lines:
 ```
