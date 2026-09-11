@@ -150,7 +150,10 @@ docker compose logs -f
 
 ## Verification & Testing
 
-### 1. Test Application via Nginx Reverse Proxy (Port 80)
+### 1. Browser output accessing the reverse-proxied application
+![Output](screenshots/output.png)
+
+### 2. Test Application via Nginx Reverse Proxy (Port 80)
 
 Send an HTTP GET request to port 80:
 
@@ -167,7 +170,7 @@ curl -s http://localhost/ | jq .
 ![Counter](screenshots/counter.png)
 ---
 
-### 2. Test Health Check Endpoint (`/healthz`)
+### 3. Test Health Check Endpoint (`/healthz`)
 
 Check the health status of the application and its database connectivity:
 
@@ -177,7 +180,7 @@ curl -i http://localhost/healthz
 ![Health Check](screenshots/health_check.png)
 ---
 
-### 3. Verify Direct Backend Access (Port 5000)
+### 4. Verify Direct Backend Access (Port 5000)
 
 Verify direct connectivity to the Gunicorn WSGI server bypassing Nginx:
 
