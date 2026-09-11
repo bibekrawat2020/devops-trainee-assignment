@@ -6,7 +6,7 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - DATABASE_URL=postgresql://appuser:apppss@db:5432/appdb
+      - DATABASE_URL=postgresql://appuser:${DB_PASSWORD}@db:5432/appdb
     depends_on:
       - db
 
@@ -21,7 +21,7 @@ services:
     image: postgres:15-alpine
     environment:
       - POSTGRES_USER=appuser
-      - POSTGRES_PASSWORD=apppss
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=appdb
     volumes:
       - db_data:/var/lib/postgresql/data
