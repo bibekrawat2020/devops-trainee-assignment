@@ -107,3 +107,62 @@ sudo ufw status verbose
 ![SSH Verify](screenshots/SSH%20Verify.png)
 ![UFW Status](screenshots/UFW%20Status.png)
 ![AWS Security Group](screenshots/AWS%20Security%20Group.png)
+
+## Issues Encountered & Resolutions
+
+### 1. SSH key permission errors on Windows
+**Error:** Bad permissions. Try removing permissions for user: NT AUTHORITY\Authenticated Users
+...
+Permissions for 'assignment_server.pem' are too open.
+Load key "assignment_server.pem": bad permissions
+ubuntu@<ip>: Permission denied (publickey).
+
+**Cause:** Windows doesn't use POSIX file permissions like Linux (`chmod`), so
+OpenSSH on Windows checks NTFS ACLs instead. The `.pem` file had inherited
+broad access (Administrators, SYSTEM, Authenticated Users, Users) — SSH
+refuses to load a private key that other accounts can read.
+
+**Additional complication:** the file was on a mapped network drive (`B:\`),
+where `icacls` changes did not reliably persist.
+
+**Resolution:**
+```cmd
+icacls assignment_server.pem /reset
+icacls assignment_server.pem /inheritance:r
+icacls assignment_server.pem /grant:r "%username%":R
+```
+Moving the key to a local path (`C:\Users\<user>\.ssh\`) resolved it
+permanently after the network-drive version kept reverting.
+
+---
+
+### 2. SSH still listening on port 22 after editing sshd_config
+**Symptom:** Changed `Port 2222` in `/etc/ssh/sshd_config` and restarted
+`ssh.service`, but the server was still reachable on port 22 and not on 2222.
+
+**Cause:** Ubuntu 22.04+ ships SSH as socket-activated by default
+`ssh.socket` binds port 22 directly and hands connections to `ssh.service`,
+independent of the `Port` directive in `sshd_config`. Editing the config file
+alone has no effect while the socket unit is active.
+
+**Resolution:**
+```bash
+sudo systemctl stop ssh.socket
+sudo systemctl disable ssh.socket
+sudo systemctl enable --now ssh.service
+sudo ss -tlnp | grep ssh  
+```
+Verified the new port worked in a second terminal session before closing
+the original one.
+
+### 3. Instance underpowered (t2.nano)
+**Symptom:** Instance was noticeably slow once multiple containers were
+expected to run.
+
+**Cause:** t2.nano has only 0.5 GB RAM, insufficient for Nginx + Flask +
+PostgreSQL (+ optional monitoring stack).
+
+**Resolution:** Resized to a larger instance type; also considered adding a
+swap file as a stopgap. Attached an Elastic IP first so the public IP
+wouldn't change when the instance was stopped for resizing (Elastic IPs are
+free while attached to a running instance).
