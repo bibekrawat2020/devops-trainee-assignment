@@ -189,6 +189,27 @@ curl -s http://localhost:5000/healthz
 ```
 ![Direct Access](screenshots/direct_access.png)
 
+### Teardown
+
+Stop and remove all containers, networks, and the database volume:
+
+    cd task2-docker-setup
+    docker compose down -v
+
+**Note:** the `-v` flag also deletes the `db_data` volume — meaning all
+database contents are permanently removed. Only use `-v` for a full,
+clean teardown.
+
+    docker compose down
+
+Verify everything is stopped:
+
+    docker ps -a
+
+Confirm the volume was removed (only relevant if you used `-v`):
+
+    docker volume ls
+
 ## Issues Encountered & Resolutions
 ### 1. 502 Bad Gateway from Nginx
 **Error:** `curl localhost` returned a 502. Nginx error log showed:
